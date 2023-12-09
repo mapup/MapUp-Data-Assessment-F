@@ -13,8 +13,11 @@ def generate_car_matrix(df)->pd.DataFrame:
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
     # Write your logic here
+    car_matrix = df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
+    np.fill_diagonal(car_matrix.values, 0)
+    
 
-    return df
+    return car_matrix
 
 
 def get_type_count(df)->dict:
@@ -28,8 +31,25 @@ def get_type_count(df)->dict:
         dict: A dictionary with car types as keys and their counts as values.
     """
     # Write your logic here
+     car_categories = {
+        "low": (0, 15],
+        "medium": (15, 25],
+        "high": (25, None],
+    }
 
-    return dict()
+    # Create a new column 'car_type' with categorized values
+    df["car_type"] = df["car"].apply(
+        lambda car: next(
+            category for category, range in car_categories.items() if car in range
+        )
+    )
+
+    # Count occurrences of each car type
+    type_counts = df["car_type"].value_counts().sort_index()
+
+    return type_counts.to_dict()
+
+    //return dict()
 
 
 def get_bus_indexes(df)->list:
@@ -44,7 +64,16 @@ def get_bus_indexes(df)->list:
     """
     # Write your logic here
 
-    return list()
+    # Calculate the mean value of the 'bus' column
+    mean_bus_value = df['bus'].mean()
+
+    # Identify indices where bus values are greater than twice the mean
+    bus_indices = df.loc[df['bus'] > 2 * mean_bus_value].index
+
+    # Sort the bus indices in ascending order and convert to a list
+    bus_indices_list = bus_indices.sort_values().tolist()
+
+    return bus_indices_list
 
 
 def filter_routes(df)->list:
@@ -59,8 +88,16 @@ def filter_routes(df)->list:
     """
     # Write your logic here
 
-    return list()
+     # Calculate average 'truck' values for each route
+    average_truck_per_route = df.groupby('route')['truck'].mean()
 
+    # Filter routes with average 'truck' values greater than 7
+    filtered_routes = average_truck_per_route[average_truck_per_route > 7]
+
+    # Sort filtered route names in ascending order
+    sorted_routes = filtered_routes.sort_values(ascending=True).index.to_list()
+
+    return sorted_routes
 
 def multiply_matrix(matrix)->pd.DataFrame:
     """
@@ -74,7 +111,15 @@ def multiply_matrix(matrix)->pd.DataFrame:
     """
     # Write your logic here
 
-    return matrix
+    # Define threshold values
+    threshold_high = 20
+
+    # Modify values based on thresholds
+    matrix.loc[matrix > threshold_high] *= 0.75
+    matrix.loc[matrix <= threshold_high] *= 1.25
+
+    # Round values to one decimal place
+    return matrix.round(1)
 
 
 def time_check(df)->pd.Series:
@@ -89,4 +134,13 @@ def time_check(df)->pd.Series:
     """
     # Write your logic here
 
-    return pd.Series()
+    # Check if there are at least 24 timestamps per day
+    daily_timestamps = df.groupby(['id', 'id_2'])['timestamp'].apply(
+        pd.Series.dt.hour.nunique
+    ) >= 24
+
+    # Check if there are timestamps for at least 7 days
+    days_covered = df.groupby(['id', 'id_2'])['timestamp'].dt.date.nunique() >= 7
+
+    # Combine both checks and return the result as a Series
+    return daily_timestamps & days_covered
