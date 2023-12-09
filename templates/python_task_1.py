@@ -13,8 +13,10 @@ def generate_car_matrix(df)->pd.DataFrame:
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
     # Write your logic here
+    car_matrix = df.pivot(index='id_1', columns='id_2', values='car')
+    car_matrix = car_matrix.fillna(0)
 
-    return df
+    return car_matrix
 
 
 def get_type_count(df)->dict:
@@ -28,8 +30,8 @@ def get_type_count(df)->dict:
         dict: A dictionary with car types as keys and their counts as values.
     """
     # Write your logic here
-
-    return dict()
+car_counts = df['car'].value_counts().to_dict()
+return car_counts
 
 
 def get_bus_indexes(df)->list:
@@ -43,8 +45,14 @@ def get_bus_indexes(df)->list:
         list: List of indexes where 'bus' values exceed twice the mean.
     """
     # Write your logic here
+ bus_column = df['bus']
+    
+bus_mean = bus_column.mean()
 
-    return list()
+    
+bus_indexes = bus_column[bus_column > 2 * bus_mean].index.tolist()
+
+ return bus_indexes
 
 
 def filter_routes(df)->list:
@@ -58,9 +66,11 @@ def filter_routes(df)->list:
         list: List of route names with average 'truck' values greater than 7.
     """
     # Write your logic here
+ truck_avg = df.groupby('route')['truck'].mean()
 
-    return list()
+ selected_routes = truck_avg[route_truck_avg > 7].index.tolist()
 
+ return selected_routes
 
 def multiply_matrix(matrix)->pd.DataFrame:
     """
@@ -73,8 +83,10 @@ def multiply_matrix(matrix)->pd.DataFrame:
         pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
     """
     # Write your logic here
+modified_matrix = matrix.applymap(custom_multiply)
 
-    return matrix
+return modified_matrix
+   
 
 
 def time_check(df)->pd.Series:
