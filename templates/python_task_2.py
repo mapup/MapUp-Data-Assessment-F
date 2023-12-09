@@ -11,9 +11,10 @@ def calculate_distance_matrix(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame: Distance matrix
     """
-    # Write your logic here
+    distance_matrix = pd.DataFrame(np.sqrt(np.square(df.values[:, np.newaxis] - df.values).sum(axis=2)),
+                                   columns=df.index, index=df.index)
 
-    return df
+    return distance_matrix
 
 
 def unroll_distance_matrix(df)->pd.DataFrame():
@@ -26,9 +27,10 @@ def unroll_distance_matrix(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame: Unrolled DataFrame containing columns 'id_start', 'id_end', and 'distance'.
     """
-    # Write your logic here
+    unrolled_df = distance_matrix.unstack().reset_index(name='distance')
+    unrolled_df.columns = ['id_start', 'id_end', 'distance']
 
-    return df
+    return unrolled_df
 
 
 def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
@@ -43,9 +45,10 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
         pandas.DataFrame: DataFrame with IDs whose average distance is within the specified percentage threshold
                           of the reference ID's average distance.
     """
-    # Write your logic here
-
-    return df
+   reference_avg_distance = df[df['id_start'] == reference_id]['distance'].mean()
+    threshold = 0.1 * reference_avg_distance
+    result_df = df.groupby('id_start')['distance'].mean().abs() <= (reference_avg_distance + threshold)
+    return result_df
 
 
 def calculate_toll_rate(df)->pd.DataFrame():
@@ -58,9 +61,8 @@ def calculate_toll_rate(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame
     """
-    # Wrie your logic here
-
-    return df
+    unrolled_df['toll_rate'] = 0.1 * unrolled_df['distance']
+    return unrolled_df
 
 
 def calculate_time_based_toll_rates(df)->pd.DataFrame():
@@ -73,6 +75,6 @@ def calculate_time_based_toll_rates(df)->pd.DataFrame():
     Returns:
         pandas.DataFrame
     """
-    # Write your logic here
-
+   df['toll_rate'] = np.where((df['hour'] >= 6) & (df['hour'] < 12), 0.2,
+                               np.where((df['hour'] >= 12) & (df['hour'] < 18), 0.3, 0.1))
     return df
