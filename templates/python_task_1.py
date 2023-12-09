@@ -51,8 +51,14 @@ def get_bus_indexes(df)->list:
         list: List of indexes where 'bus' values exceed twice the mean.
     """
     # Write your logic here
-
-    return list()
+    df=pd.read_csv(df)
+    bus_mean=df['bus'].mean()
+    bus_indexes= df[df['bus']> 2*bus_mean].index.tolist()
+    bus_indexes.sort()
+    
+    return bus_indexes
+result=get_bus_indexes('/Users/HP/Downloads/dataset-1.csv')
+print(result)
 
 
 def filter_routes(df)->list:
