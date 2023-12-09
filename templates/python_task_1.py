@@ -14,23 +14,6 @@ def generate_car_matrix(df)->pd.DataFrame:
     """
    
 
-def generate_car_matrix(df):
-    # Pivot the DataFrame to create the desired matrix
-    car_matrix = df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
-
-    # Set diagonal values to 0
-    for index in car_matrix.index:
-        car_matrix.at[index, index] = 0
-
-    return car_matrix
-
-# Example usage with dataset-1.csv
-df = pd.read_csv('dataset-1.csv')
-result_matrix = generate_car_matrix(df)
-
-# Print or further use the resulting matrix
-print(result_matrix)
-
 
     return df
 
