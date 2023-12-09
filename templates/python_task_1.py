@@ -13,8 +13,11 @@ def generate_car_matrix(df)->pd.DataFrame:
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
     # Write your logic here
+    df=pd.read_csv(df).pivot(index='id_1', columns='id_2', values='car').fillna(0)
 
     return df
+result_df=generate_car_matrix(/datasets/dataset-1.csv)
+print(result_df)
 
 
 def get_type_count(df)->dict:
