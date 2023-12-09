@@ -15,7 +15,6 @@ def generate_car_matrix(df)->pd.DataFrame:
     # Write your logic here
 
     return df
-    datasets/dataset-1.csv
 
 
 def get_type_count(df)->dict:
