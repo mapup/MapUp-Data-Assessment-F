@@ -13,6 +13,8 @@ def generate_car_matrix(df)->pd.DataFrame:
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
     # Write your logic here
+    df = pd.pivot(df, index= 'id_1', columns='id_2', values='car')
+    df.fillna(0, inplace=True)    
 
     return df
 
@@ -29,7 +31,11 @@ def get_type_count(df)->dict:
     """
     # Write your logic here
 
-    return dict()
+    df['car_type'] = df['car'].apply(lambda x: 'low' if x<= 15 else ('high' if x>25 else 'medium' ))
+    car_type_counts = df['car_type'].value_counts().to_dict()
+    sorted_dict = dict(sorted(car_type_counts.items()))
+
+    return sorted_dict
 
 
 def get_bus_indexes(df)->list:
@@ -44,7 +50,10 @@ def get_bus_indexes(df)->list:
     """
     # Write your logic here
 
-    return list()
+    mean = df['bus'].mean()
+    list_index = df[df['bus'] > 2*mean].index.tolist()
+
+    return list_index
 
 
 def filter_routes(df)->list:
@@ -59,7 +68,11 @@ def filter_routes(df)->list:
     """
     # Write your logic here
 
-    return list()
+    average_truck_by_route = df.groupby('route')['truck'].mean()
+    filtered_routes = average_truck_by_route[average_truck_by_route > 7].index.tolist()
+    sorted_routes = sorted(filtered_routes)
+
+    return sorted_routes
 
 
 def multiply_matrix(matrix)->pd.DataFrame:
@@ -73,6 +86,11 @@ def multiply_matrix(matrix)->pd.DataFrame:
         pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
     """
     # Write your logic here
+
+    condition = matrix > 20
+    matrix[condition] *= 0.75
+    matrix[~condition] *= 1.25
+    
 
     return matrix
 
