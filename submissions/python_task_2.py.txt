@@ -1,0 +1,183 @@
+
+# Question 1: Distance Matrix Calculation ----------
+
+
+def calculate_distance_matrix(df):
+    """
+    Calculate a distance matrix based on the dataframe, df.
+
+    Args:
+        df (pandas.DataFrame)
+
+    Returns:
+        pandas.DataFrame: Distance matrix
+    """
+    # Find unique IDs
+    ids = np.union1d(df['id_start'].unique(), df['id_end'].unique())
+
+    # Create an empty matrix
+    dist_matrix = pd.DataFrame(index=ids, columns=ids)
+
+    # Set diagonal values to 0
+    np.fill_diagonal(dist_matrix.values, 0)
+
+    # Fill in distances
+    for i, row in df.iterrows():
+        dist_matrix.at[row['id_start'], row['id_end']] = row['distance']
+        dist_matrix.at[row['id_end'], row['id_start']] = row['distance']
+
+    # Propagate cumulative distances
+    for i in ids:
+        for j in ids:
+            for k in ids:
+                if not np.isnan(dist_matrix.at[j, i]) and not np.isnan(dist_matrix.at[i, k]):
+                    if np.isnan(dist_matrix.at[j, k]):
+                        dist_matrix.at[j, k] = dist_matrix.at[j, i] + dist_matrix.at[i, k]
+                    else:
+                        dist_matrix.at[j, k] = min(dist_matrix.at[j, k], dist_matrix.at[j, i] + dist_matrix.at[i, k])
+
+    return dist_matrix
+
+df = pd.read_csv('dataset-3.csv')
+
+# Call the function to calculate the distance matrix
+result_matrix = calculate_distance_matrix(df)
+print(result_matrix)
+
+
+# Question 2: Unroll Distance Matrix ----------
+
+
+def unroll_distance_matrix(df1):
+    distances = []
+
+    # Iterate over rows and columns in the distance matrix
+    for i in range(len(df1)):
+        for j in range(i + 1, len(df1)):
+            id_start = df1.index[i]
+            id_end = df1.columns[j]
+
+            distance = df1.iloc[i, j]
+            if not np.isnan(distance):
+                distances.append([id_start, id_end, distance])
+
+    result_df = pd.DataFrame(distances, columns=['id_start', 'id_end', 'distance'])
+    return result_df
+
+df1=calculate_distance_matrix(df)
+
+# Assuming dist_matrix is your calculated distance matrix
+result_unrolled = unroll_distance_matrix(df1)
+print(result_unrolled)
+
+# Question 3: Finding IDs within Percentage Threshold ----------
+
+
+def find_ids_within_ten_percentage_threshold(df, reference_id):
+    """
+    Find all IDs whose average distance lies within 10% of the average distance of the reference ID.
+
+    Args:
+        df (pandas.DataFrame)
+        reference_id (int)
+
+    Returns:
+        pandas.DataFrame: DataFrame with IDs whose average distance is within the specified percentage threshold
+                          of the reference ID's average distance.
+    """
+    # Filter rows with id_start equal to the reference_id
+    reference_data = df[df['id_start'] == reference_id]
+
+    # Calculate the average distance for the reference_id
+    avg_distance = reference_data['distance'].mean()
+
+    # Calculate the threshold values (10% of the average distance)
+    threshold_min = avg_distance * 0.9
+    threshold_max = avg_distance * 1.1
+
+    # Filter rows where distance falls within the threshold range
+    filtered_ids = df[(df['id_start'] != reference_id) & 
+                      (df['distance'] >= threshold_min) & 
+                      (df['distance'] <= threshold_max)]['id_start']
+
+    # Get unique sorted values
+    result = sorted(filtered_ids.unique())
+
+    return result
+
+result_list = find_ids_within_ten_percentage_threshold(result_unrolled, 1001400)
+print(result_list)
+
+
+# Question 4: Calculate Toll Rate ----------
+
+def calculate_toll_rate(df):
+    """
+    Calculate toll rates for each vehicle type based on the unrolled DataFrame.
+
+    Args:
+        df (pandas.DataFrame)
+
+    Returns:
+        pandas.DataFrame
+    """
+    # Calculate toll rates based on distance and vehicle types
+    df['moto'] = df['distance'] * 0.8
+    df['car'] = df['distance'] * 1.2
+    df['rv'] = df['distance'] * 1.5
+    df['bus'] = df['distance'] * 2.2
+    df['truck'] = df['distance'] * 3.6
+    
+    return df
+
+# Calculate toll rates for different vehicle types
+result_with_toll_rates = calculate_toll_rate(df)
+print(result_with_toll_rates)
+
+
+# Question 5: Calculate Time-Based Toll Rates ----------
+
+def verify_time_completeness(df):
+    # Check if the columns 'startDay', 'startTime', 'endDay', and 'endTime' exist
+    expected_columns = ['startDay', 'startTime', 'endDay', 'endTime']
+    if not all(col in df.columns for col in expected_columns):
+        raise ValueError("Required columns are missing in the DataFrame")
+    
+    # Convert 'startTime' and 'endTime' columns to datetime
+    df['startTime'] = pd.to_datetime(df['startTime'])
+    df['endTime'] = pd.to_datetime(df['endTime'])
+    
+    # Convert 'startDay' and 'endDay' columns to ordered categorical for correct sorting
+    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    df['startDay'] = pd.Categorical(df['startDay'], categories=days_order, ordered=True)
+    df['endDay'] = pd.Categorical(df['endDay'], categories=days_order, ordered=True)
+    
+    # Create a list to store DataFrames of results for each unique id/id_2 pair
+    results = []
+    
+    # Iterate over unique id/id_2 pairs
+    for (id_val, id_2_val), group in df.groupby(['id', 'id_2']):
+        # Check if each day of the week is covered for the pair
+        days_covered = set(group['startDay']).union(set(group['endDay']))
+        days_full = set(days_order)
+        days_complete = days_covered == days_full
+        
+        # Check if the time span covers a full 24-hour period for each day
+        full_day_span = all(((group['endTime'] - group['startTime']).dt.total_seconds() >= 86399).values)
+        
+        # Append the result for this id/id_2 pair to the list
+        results.append(pd.DataFrame({'id': [id_val], 'id_2': [id_2_val], 'result': [days_complete and full_day_span]}))
+    
+    # Concatenate all DataFrames into a single result DataFrame
+    result_df = pd.concat(results, ignore_index=True)
+    return result_df.set_index(['id', 'id_2'])
+
+# Assuming 'dataset-2.csv' is your file, load it into a DataFrame
+# data = pd.read_csv('dataset-2.csv')
+
+# # Call the function with your DataFrame
+# try:
+#     result = verify_time_completeness(data)
+#     print(result)
+# except ValueError as e:
+#     print(e)

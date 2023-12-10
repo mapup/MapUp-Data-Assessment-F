@@ -1,0 +1,145 @@
+import pandas as pd
+import numpy as np
+
+# Question 1: Car Matrix Generation ----------
+
+def generate_car_matrix(df) -> pd.DataFrame:
+    """
+    Creates a DataFrame for id combinations.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing 'id_1', 'id_2', and 'car' columns.
+
+    Returns:
+        pandas.DataFrame: Matrix generated with 'car' values, 
+                          where 'id_1' and 'id_2' are used as indices and columns respectively.
+    """
+    # Filter the DataFrame to include rows and columns up to '806'
+    filtered_df = df[(df['id_1'] <= 806) & (df['id_2'] <= 806)]
+    
+    # Pivot the filtered DataFrame to get the desired matrix
+    df = filtered_df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
+    
+    # Replace diagonal values with 0
+    np.fill_diagonal(df.values, 0)
+    
+    return df
+
+# df = pd.read_csv('dataset-1.csv')
+
+# # Generate the matrix using the function
+# result_matrix = generate_car_matrix(df)
+# print(result_matrix) 
+
+
+# Question 2: Car Type Count Calculation ----------
+
+def get_type_count(df):
+    """
+    Categorizes 'car' values into types and returns a dictionary of counts.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the dataset
+
+    Returns:
+        dict: A dictionary with car types as keys and their counts as values.
+    """
+    # Categorize 'car' values into 'low', 'medium', 'high'
+    conditions = [
+        df['car'] <= 15,
+        (df['car'] > 15) & (df['car'] <= 25),
+        df['car'] > 25
+    ]
+    categories = ['low', 'medium', 'high']
+    df['car_type'] = pd.cut(df['car'], bins=[-float('inf'), 15, 25, float('inf')], labels=categories, right=False)
+    
+    # Count occurrences of each car type
+    counts = df['car_type'].value_counts().to_dict()
+
+    # Sort the dictionary alphabetically by keys
+    sorted_counts = dict(sorted(counts.items()))
+    return sorted_counts
+
+# df = pd.read_csv('dataset-1.csv')
+
+# # Generate the matrix using the function
+# result_matrix = get_type_count(df)
+# print(result_matrix) 
+
+#  Question 3: Bus Count Index Retrieval ----------
+
+def get_bus_indexes(df):
+    """
+    Identifies indices where 'bus' values are greater than twice the mean value.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the dataset
+
+    Returns:
+        list: List of indices where 'bus' values are greater than twice the mean value.
+    """
+    # Calculate the mean value of the 'bus' column
+    bus_mean = df['bus'].mean()
+    
+    # Find indices where 'bus' values are greater than twice the mean
+    bus_indexes = df[df['bus'] > 2 * bus_mean].index.tolist()
+    
+    # Sort the indices in ascending order
+    bus_indexes.sort()
+    
+    return bus_indexes
+
+# df = pd.read_csv('dataset-1.csv')
+# # Generate the matrix using the function
+# result_matrix = get_bus_indexes(df)
+# print(result_matrix) 
+
+
+#  Question 4: Route Filtering ----------
+
+def filter_routes(df):
+    """
+    Filters routes based on the average 'truck' values.
+
+    Args:
+        df (pandas.DataFrame): DataFrame containing the dataset
+
+    Returns:
+        list: Sorted list of values in the 'route' column 
+              where the average of 'truck' values is greater than 7.
+    """
+    # Group by 'route' and calculate the mean of 'truck' values
+    truck_means = df.groupby('route')['truck'].mean()
+    
+    # Filter routes where the average 'truck' value is greater than 7
+    filtered_routes = truck_means[truck_means > 7].index.tolist()
+    
+    # Sort the list of routes
+    filtered_routes.sort()
+    
+    return filtered_routes
+
+# df = pd.read_csv('dataset-1.csv')
+# # Generate the matrix using the function
+# result_matrix = filter_routes(df)
+# print(result_matrix) 
+
+
+# Question 5: Matrix Value Modification ----------
+
+def multiply_matrix(df):
+    modified_df = generate_car_matrix(df) # Create a copy of the DataFrame
+    
+    # Apply the specified logic to modify the values in the DataFrame
+    modified_df = modified_df.applymap(lambda x: x * 0.75 if x > 20 else x * 1.25)
+    
+    # Round the modified values to 1 decimal place
+    modified_df = modified_df.round(1)
+    
+    return modified_df
+
+# df = pd.read_csv('dataset-1.csv')
+# result_matrix=multiply_matrix(df)
+# print(result_matrix)
+
+# -------------------------------------------------------------------------------------------
