@@ -18,7 +18,7 @@ def calculate_distance_matrix(df):
     grid = pd.DataFrame(index=unique_ids, columns=unique_ids)
     np.fill_diagonal(grid.values, 0)
     k = 0
-    print(df)
+    # print(df)
     # print(len(df.index), len(unique_ids))
     for i in df.index:
         grid[df["id_start"][i]][df["id_end"][i]] = df['distance'][i]
@@ -32,9 +32,22 @@ def calculate_distance_matrix(df):
         k+=1
     return grid
 
-ques1_out = calculate_distance_matrix(df3)
-# ques2_out = get_type_count(df1)
+def find_ids_within_ten_percentage_threshold( df, ref ):
+    avg = np.average(df[ref])
+    maxi = avg*1.1
+    mini = avg*0.9
+    li = []
+    for i in df.index:
+        if mini <= df[ref][i] <= maxi:
+            li.append(df[ref][i])
+    return li
+
+
+
+ques1_out = calculate_distance_matrix(df3.head(20))
+ques2_out = find_ids_within_ten_percentage_threshold(ques1_out.head(20), 1001402)
 # ques3_out = get_bus_indexes(df1)
 # ques4_out = filter_routes(df1)
 
 # print(ques1_out)
+print(ques2_out)
