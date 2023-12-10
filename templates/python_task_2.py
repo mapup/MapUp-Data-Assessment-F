@@ -55,8 +55,17 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
                           of the reference ID's average distance.
     """
     # Write your logic here
-
-    return df
+    average_distance = df[df['id_start'] == reference_id]['distance'].mean()
+    threshold = 0.1 * average_distance
+    within_threshold = df[(df['id_start'] != reference_id) & 
+                                 (df['distance'] >= average_distance - threshold) & 
+                                 (df['distance'] <= average_distance + threshold)]
+    result = within_threshold['id_start'].unique().tolist()
+    result.sort()
+    return result
+reference_values = unrolled_df['id_start'].unique()
+for i in reference_values:
+  print(find_ids_within_ten_percentage_threshold(unrolled_df, int(i)))
 
 
 def calculate_toll_rate(df)->pd.DataFrame():
