@@ -12,8 +12,31 @@ def calculate_distance_matrix(df)->pd.DataFrame():
         pandas.DataFrame: Distance matrix
     """
     # Write your logic here
+    df = pd.read_csv(r'C:\Users\Ritesh Mishra\Desktop\MapUp-Data-Assessment-F-main\datasets\dataset-3.csv')
 
-    return df
+    # Create an empty DataFrame for the distance matrix
+    unique_ids = sorted(set(df['id_start'].unique()) | set(df['id_end'].unique()))
+    distance_matrix = pd.DataFrame(index=unique_ids, columns=unique_ids)
+    distance_matrix = distance_matrix.fillna(0)
+
+    # Fill in the distances in the matrix
+    for index, row in df.iterrows():
+        start, end, distance = row['id_start'], row['id_end'], row['distance']
+        distance_matrix.at[start, end] = distance
+        distance_matrix.at[end, start] = distance  # Ensure symmetry
+
+    # Update the matrix with cumulative distances along known routes
+    for k in unique_ids:
+        for i in unique_ids:
+            for j in unique_ids:
+                if distance_matrix.at[i, k] != 0 and distance_matrix.at[k, j] != 0:
+                    # If distances between toll locations A to B and B to C are known,
+                    # then the distance from A to C should be the sum of these distances.
+                    if distance_matrix.at[i, j] == 0 or distance_matrix.at[i, j] > distance_matrix.at[i, k] + distance_matrix.at[k, j]:
+                        distance_matrix.at[i, j] = distance_matrix.at[i, k] + distance_matrix.at[k, j]
+
+    return distance_matrix
+
 
 
 def unroll_distance_matrix(df)->pd.DataFrame():
