@@ -13,6 +13,12 @@ def generate_car_matrix(df)->pd.DataFrame:
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
     # Write your logic here
+    temp = df
+    df = temp.pivot(index='id_1', columns='id_2', values='car')
+
+    for id in df.index:
+        if id in df.columns:
+            df.at[id, id] = 0
 
     return df
 
