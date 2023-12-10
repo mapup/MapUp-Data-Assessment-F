@@ -1,92 +1,68 @@
 import pandas as pd
+import numpy as np
 
+# Task 1: Car Matrix Generation
+def generate_car_matrix(df):
+    df_pivot = df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
+    np.fill_diagonal(df_pivot.values, 0)
+    return pd.DataFrame(df_pivot, dtype=int)
 
-def generate_car_matrix(df)->pd.DataFrame:
-    """
-    Creates a DataFrame  for id combinations.
+# Task 2: Car Type Count Calculation
+def get_type_count(df):
+    df['car_type'] = pd.cut(df['car'], bins=[-np.inf, 15, 25, np.inf], labels=['low', 'medium', 'high'])
+    type_count = df['car_type'].value_counts().to_dict()
+    return dict(sorted(type_count.items()))
 
-    Args:
-        df (pandas.DataFrame)
+# Task 3: Bus Count Index Retrieval
+def get_bus_indexes(df):
+    mean_bus = df['bus'].mean()
+    bus_indexes = df[df['bus'] > 2 * mean_bus].index.tolist()
+    return sorted(bus_indexes)
 
-    Returns:
-        pandas.DataFrame: Matrix generated with 'car' values, 
-                          where 'id_1' and 'id_2' are used as indices and columns respectively.
-    """
-    # Write your logic here
+# Task 4: Route Filtering
+def filter_routes(df):
+    avg_truck_by_route = df.groupby('route')['truck'].mean()
+    selected_routes = avg_truck_by_route[avg_truck_by_route > 7].index.tolist()
+    return sorted(selected_routes)
 
-    return df
+# Task 5: Matrix Value Modification
+def multiply_matrix(df):
+    modified_df = df.applymap(lambda x: x * 0.75 if x > 20 else x * 1.25)
+    return modified_df.round(1)
 
+# Task 6: Time Check
+def check_time_completeness(df):
+    df['start_timestamp'] = pd.to_datetime(df['startDay'] + ' ' + df['startTime'])
+    df['end_timestamp'] = pd.to_datetime(df['endDay'] + ' ' + df['endTime'])
+    
+    time_check = df.groupby(['id', 'id_2']).apply(lambda x: x.set_index('start_timestamp')
+                                                  .resample('H').asfreq().isna().any())
+    return ~time_check
 
-def get_type_count(df)->dict:
-    """
-    Categorizes 'car' values into types and returns a dictionary of counts.
+# Example usage:
+dataset1 = pd.read_csv('dataset-1.csv')
+dataset2 = pd.read_csv('dataset-2.csv')
 
-    Args:
-        df (pandas.DataFrame)
+# Task 1
+result_df_task1 = generate_car_matrix(dataset1)
+print(result_df_task1)
 
-    Returns:
-        dict: A dictionary with car types as keys and their counts as values.
-    """
-    # Write your logic here
+# Task 2
+result_task2 = get_type_count(dataset1)
+print(result_task2)
 
-    return dict()
+# Task 3
+result_task3 = get_bus_indexes(dataset1)
+print(result_task3)
 
+# Task 4
+result_task4 = filter_routes(dataset1)
+print(result_task4)
 
-def get_bus_indexes(df)->list:
-    """
-    Returns the indexes where the 'bus' values are greater than twice the mean.
+# Task 5
+result_df_task5 = multiply_matrix(result_df_task1)
+print(result_df_task5)
 
-    Args:
-        df (pandas.DataFrame)
-
-    Returns:
-        list: List of indexes where 'bus' values exceed twice the mean.
-    """
-    # Write your logic here
-
-    return list()
-
-
-def filter_routes(df)->list:
-    """
-    Filters and returns routes with average 'truck' values greater than 7.
-
-    Args:
-        df (pandas.DataFrame)
-
-    Returns:
-        list: List of route names with average 'truck' values greater than 7.
-    """
-    # Write your logic here
-
-    return list()
-
-
-def multiply_matrix(matrix)->pd.DataFrame:
-    """
-    Multiplies matrix values with custom conditions.
-
-    Args:
-        matrix (pandas.DataFrame)
-
-    Returns:
-        pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
-    """
-    # Write your logic here
-
-    return matrix
-
-
-def time_check(df)->pd.Series:
-    """
-    Use shared dataset-2 to verify the completeness of the data by checking whether the timestamps for each unique (`id`, `id_2`) pair cover a full 24-hour and 7 days period
-
-    Args:
-        df (pandas.DataFrame)
-
-    Returns:
-        pd.Series: return a boolean series
-    """
-    # Write your logic here
-
-    return pd.Series()
+# Task 6
+time_completeness_check = check_time_completeness(dataset2)
+print(time_completeness_check)
