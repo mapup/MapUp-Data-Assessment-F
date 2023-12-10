@@ -141,7 +141,7 @@ def time_check(df):
 
     return df
 
-df = pd.read_csv(r'C:\Users\iftik\Assignment\MapUp-Data-Assessment-F\datasets\dataset-1.csv')
+df = pd.read_csv(r'C:\Users\iftik\MapUp\MapUp-Data-Assessment-F\datasets\dataset-1.csv')
 sample_result = generate_car_matrix(df)
 print("The output of Question 1:\n",sample_result)
 
@@ -157,6 +157,6 @@ print("The output of Question 4:\n",result)
 modified_result = multiply_matrix(sample_result)  # Assuming sample_result is the matrix generated earlier
 print("The output of Question 5:\n",modified_result)
 
-df1 = pd.read_csv(r'C:\Users\iftik\Assignment\MapUp-Data-Assessment-F\datasets\dataset-2.csv')
+df1 = pd.read_csv(r'C:\Users\iftik\MapUp\MapUp-Data-Assessment-F\datasets\dataset-2.csv')
 boolean_series = time_check(df1)
 print("The output of Question 6:\n",boolean_series)

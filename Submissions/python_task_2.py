@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from itertools import product
+from datetime import time
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -128,13 +130,81 @@ def calculate_toll_rate(df):
         df[vehicle_type] = df['distance'] * rate_coefficient
 
 # Drop the 'distance' column
-    df = df.drop(columns='distance')
+    #df = df.drop(columns='distance')
 
     return df
 
+# Question 5: Calculate Time-Based Toll Rates
+def calculate_time_based_toll_rates(input_df):
+    # Define time ranges
+    time_ranges = {
+        'weekday': [(time(0, 0, 0), time(10, 0, 0)), (time(10, 0, 0), time(18, 0, 0)), (time(18, 0, 0), time(23, 59, 59))],
+        'weekend': [(time(0, 0, 0), time(23, 59, 59))]
+    }
+
+    # Create DataFrames for time ranges
+    dfs = {}
+    for time_range, ranges in time_ranges.items():
+        df = pd.DataFrame(ranges, columns=['start_time', 'end_time'])
+        df = pd.concat([df] * len(input_df), ignore_index=True)
+        df['id_start'] = input_df['id_start']
+        df['id_end'] = input_df['id_end']
+        dfs[time_range] = df
+
+    result_df = pd.merge(input_df, dfs['weekday'], on=['id_start', 'id_end'])
+
+    # Define the days of the week and create day combinations
+    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    weekends = ['Saturday', 'Sunday']
+    day_combinations = {
+        'weekdays': list(product(weekdays, repeat=2)),
+        'weekends': list(product(weekends, repeat=2))
+    }
+
+    # Create DataFrames for day combinations
+    day_combination_dfs = {}
+    for day_comb, combinations in day_combinations.items():
+        df = pd.DataFrame(combinations, columns=['start_day', 'end_day'])
+        df = pd.concat([df] * len(input_df), ignore_index=True)
+        df['id_start'] = input_df['id_start']
+        df['id_end'] = input_df['id_end']
+        day_combination_dfs[day_comb] = df
+
+    result_df = pd.merge(result_df, day_combination_dfs['weekdays'], on=['id_start', 'id_end'])
+    weekend_comb = pd.merge(dfs['weekend'], day_combination_dfs['weekends'], on=['id_start', 'id_end'])
+    result_df1 = pd.merge(result_df[['id_start', 'id_end', 'distance', 'moto', 'car', 'rv', 'bus', 'truck']], weekend_comb,
+                          on=['id_start', 'id_end'])
+    final_df = pd.concat([result_df, result_df1], axis=0)
+
+    # Adjust start and end times based on weekends
+    final_df['start_time'] = np.where((final_df['start_day'].isin(['Saturday', 'Sunday'])) & (
+            final_df['end_day'].isin(['Saturday', 'Sunday'])), time(0, 0, 0), final_df['start_time'])
+    final_df['end_time'] = np.where((final_df['start_day'].isin(['Saturday', 'Sunday'])) & (
+            final_df['end_day'].isin(['Saturday', 'Sunday'])), time(23, 59, 59), final_df['end_time'])
+
+    # Apply coefficients and adjust toll rates
+    def get_coeff(row):
+        if row['start_day'] in ['Saturday', 'Sunday']:
+            return 0.7
+        else:
+            if row['start_time'] == time(0, 0, 0):
+                return 0.8
+            elif row['start_time'] == time(10, 0, 0):
+                return 1.2
+            else:
+                return 0.8
+
+    final_df['coeff'] = final_df.apply(get_coeff, axis=1)
+    for col in ['moto', 'car', 'rv', 'bus', 'truck']:
+        final_df[col] = final_df[col] * final_df['coeff']
+    del final_df['coeff']
+
+    final_df = final_df.drop_duplicates()
+
+    return final_df
 
 # Read the dataset
-data = pd.read_csv(r'C:\Users\iftik\Assignment\MapUp-Data-Assessment-F\datasets\dataset-3.csv')
+data = pd.read_csv(r'C:\Users\iftik\MapUp\MapUp-Data-Assessment-F\datasets\dataset-3.csv')
 
 # Calculate distance matrix
 resulting_distance_matrix = calculate_distance_matrix(data)
@@ -152,3 +222,7 @@ print("Finding IDs within Percentage Threshold:\n",resulting_ids_within_threshol
 # Calculate toll rates for each vehicle type
 result_with_toll_rates = calculate_toll_rate(unrolled_data)
 print("Calculate Toll Rate:\n",result_with_toll_rates)
+
+# Calculate Time-Based Toll Rates
+time_based_toll_rates = calculate_time_based_toll_rates(result_with_toll_rates)
+print("Calculate Time-Based Toll Rate:\n",time_based_toll_rates)
