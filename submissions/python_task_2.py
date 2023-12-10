@@ -30,7 +30,7 @@ def calculate_distance_matrix(df):
             grid[unique_ids[k+1]][unique_ids[j]] = grid[unique_ids[k]][unique_ids[j]] + grid[unique_ids[k+1]][unique_ids[j+1]]
             grid[unique_ids[j]][unique_ids[k+1]] = grid[unique_ids[k+1]][unique_ids[j]]
         k+=1
-    print(grid)
+    return grid
 
 ques1_out = calculate_distance_matrix(df3)
 # ques2_out = get_type_count(df1)
