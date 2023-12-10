@@ -21,6 +21,7 @@ There should be a folder named `submissions` in the root of your repository. Thi
   - 📄 python_task_1.py
   - 📄 python_task_2.py
   - 📄 excel_assessment.xlsm
+  - C:\Users\User\Desktop\all project 
 
 ## Result Submission:
 - Data that you need to work with is in the folder `datasets`. Store your process outputs in the structure mentioned below
