@@ -1,5 +1,5 @@
 import pandas as pd
-
+from datetime import datetime, time
 
 def generate_car_matrix(df)->pd.DataFrame:
     """
@@ -125,5 +125,32 @@ def time_check(df)->pd.Series:
         pd.Series: return a boolean series
     """
     # Write your logic here
+    
+    # Helper function to parse time and day of the week
+    def parse_time_day(time_str, day_str):
+        return datetime.strptime(day_str + ' ' + time_str, '%A %H:%M:%S')
 
-    return pd.Series()
+    # Parsing 'startDay', 'startTime', 'endDay', 'endTime' columns
+    df['startTimestamp'] = df.apply(lambda x: parse_time_day(x['startTime'], x['startDay']), axis=1)
+    df['endTimestamp'] = df.apply(lambda x: parse_time_day(x['endTime'], x['endDay']), axis=1)
+
+    # Creating a multi-index based on 'id' and 'id_2'
+    df.set_index(['id', 'id_2'], inplace=True)
+
+    # Function to check if the time range covers 24 hours for each group
+    def covers_full_day(group):
+        times = set()
+        for _, row in group.iterrows():
+            current_day = row['startTimestamp']
+            while current_day <= row['endTimestamp']:
+                times.add(current_day.time())
+                current_day += pd.Timedelta(hours=1)
+        return len(times) == 24 * 7
+
+    # Function to check if the time range covers all days of the week for each group
+    def covers_full_week(group):
+        days = set(group['startTimestamp'].dt.dayofweek) | set(group['endTimestamp'].dt.dayofweek)
+        return len(days) == 7
+
+    # Applying the checks and combining results
+    return df.groupby(level=[0, 1]).apply(covers_full_day)
