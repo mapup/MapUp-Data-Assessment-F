@@ -108,8 +108,10 @@ def multiply_matrix(matrix)->pd.DataFrame:
         pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
     """
     # Write your logic here
+    
+    # Applying the specified logic to each value in the DataFrame using applymap and rounding decimal to 1 digit
+    return matrix.applymap(lambda x: x * 0.75 if x > 20 else x * 1.25).round(1)
 
-    return matrix
 
 
 def time_check(df)->pd.Series:
