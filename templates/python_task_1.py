@@ -110,5 +110,20 @@ def time_check(df)->pd.Series:
         pd.Series: return a boolean series
     """
     # Write your logic here
+    df['start_timestamp'] = pd.to_datetime(df['startDay'] + ' ' + df['startTime'], format='%A %H:%M:%S')
+    df['end_timestamp'] = pd.to_datetime(df['endDay'] + ' ' + df['endTime'], format='%A %H:%M:%S')
+    df['duration'] = df['end_timestamp'] - df['start_timestamp']
+    grouped =df.groupby(['id', 'id_2'])
+    def check_time_coverage(group):
+        full_24_hours = group['duration'].min() >= pd.Timedelta(hours=24)
+        span_7_days = group['start_timestamp'].dt.dayofweek.nunique() == 7
+        return not (full_24_hours and span_7_days)
+        
+    incorrect_timestamps = grouped.apply(check_time_coverage)
+    print(type(incorrect_timestamps))
+    return incorrect_timestamps
 
-    return pd.Series()
+
+data=pd.read_csv("/Users/HP/Downloads/dataset-2.csv")
+boolean_series = verify_time_completeness(data)
+print(boolean_series)
