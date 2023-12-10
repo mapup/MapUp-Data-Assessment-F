@@ -12,8 +12,15 @@ def calculate_distance_matrix(df)->pd.DataFrame():
         pandas.DataFrame: Distance matrix
     """
     # Write your logic here
+    pivot_table = pd.read_csv(df).pivot(index='id_start', columns='id_end', values='distance').fillna(0)
+    data_frame = pivot_table.add(pivot_table.T, fill_value=0)
+    for index in data_frame.index:
+        data_frame.loc[index, index] = 0
+    return data_frame
+distance_matrix=calculate_distance_matrix('/Users/HP/Downloads/dataset-3.csv')
+print(distance_matrix)
 
-    return df
+    
 
 
 def unroll_distance_matrix(df)->pd.DataFrame():
