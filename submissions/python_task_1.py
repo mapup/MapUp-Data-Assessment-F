@@ -44,6 +44,7 @@ def Time_Check (df):
     #df = pd.read_csv(path)
     df = df.groupby( by = ["id", "id_2"]).agg(count =('name', 'count')).reset_index()
     print(df.head(10))
+    return df
 
 ques1_out = generate_car_matrix(df1)
 ques2_out = get_type_count(df1)
