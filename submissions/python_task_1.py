@@ -84,8 +84,17 @@ def filter_routes(df)->list:
         list: List of route names with average 'truck' values greater than 7.
     """
     # Write your logic here
+    
+    # Grouping by 'route' and calculating the average of the 'truck' column
+    route_avg_truck = df.groupby('route')['truck'].mean()
 
-    return list()
+    # Filtering routes where the average of 'truck' values is greater than 7
+    filtered_routes = route_avg_truck[route_avg_truck > 7].index.tolist()
+
+    # Sorting the list of routes
+    filtered_routes.sort()
+
+    return filtered_routes
 
 
 def multiply_matrix(matrix)->pd.DataFrame:
