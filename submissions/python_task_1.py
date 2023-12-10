@@ -107,7 +107,11 @@ def multiply_matrix(matrix)->pd.DataFrame:
     updated_df = updated_df.round(1)
     return updated_df
 
-
+'''To upload dataset-2 from local drive'''
+from google.colab import files
+uploaded = files.upload()
+import io
+df = pd.read_csv(io.BytesIO(uploaded['dataset-2.csv']))
 def time_check(df)->pd.Series:
     """
     Use shared dataset-2 to verify the completeness of the data by checking whether the timestamps for each unique (`id`, `id_2`) pair cover a full 24-hour and 7 days period
