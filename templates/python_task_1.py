@@ -1,6 +1,6 @@
 import pandas as pd
 # Read the CSV file into a DataFrame
-df = pd.read_csv(r'C:\Users\LENOVO\Documents\Assessment\MapUp-Data-Assessment-F\datasets\dataset-1.csv')
+df = pd.read_csv('datasets/dataset-1.csv')
 def generate_car_matrix(data_set):
 # Create a table with id_1 as index, id_2 as columns, and car as value
     tab_df = df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
@@ -26,7 +26,7 @@ def i_car_type(car_value):
         return 'high'
 def get_type_count(data_set):
 # Read the CSV file into a DataFrame
-    df = pd.read_csv(r'C:\Users\LENOVO\Documents\Assessment\MapUp-Data-Assessment-F\datasets\dataset-1.csv')
+    df = pd.read_csv('datasets/dataset-1.csv')
 
 # Add a new column 'car_type' based on 'car' values
     df['car_type'] = df['car'].apply(i_car_type)
@@ -73,7 +73,7 @@ def multiply_matrix(matrix):
 
 
 def time_check(df):
-    df_path = pd.read_csv(r'C:\Users\LENOVO\Documents\Assessment\MapUp-Data-Assessment-F\datasets\dataset-2.csv')
+    df_path = pd.read_csv('datasets/dataset-2.csv')
     # combine date & time columns to create start and end time
     df['start_time'] = pd.to_datetime(df['start_day'] + '' + df['start_time'])
     df['end_time'] = pd.to_datetime(df['end_day'] + '' + df['end_time'])
