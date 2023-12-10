@@ -85,7 +85,8 @@ def calculate_toll_rate(df)->pd.DataFrame():
     df['bus'] = df['distance'] * 2.2
     df['truck'] = df['distance'] * 3.6
     return df
-print(calculate_toll_rate(unrolled_df))
+toll_rate=calculate_toll_rate(unrolled_df)
+print(toll_rate)
 
 
 
@@ -100,5 +101,21 @@ def calculate_time_based_toll_rates(df)->pd.DataFrame():
         pandas.DataFrame
     """
     # Write your logic here
+    df['start_day'] = df['start_time'].dt.day_name()
+    df['end_day'] = df['end_time'].dt.day_name()
+    df['start_time'] = df['start_time'].dt.time
+    df['end_time'] = df['end_time'].dt.time
+    weekday_discounts = {
+        (time(0, 0, 0), time(10, 0, 0)): 0.8,
+        (time(10, 0, 0), time(18, 0, 0)): 1.2,
+        (time(18, 0, 0), time(23, 59, 59)): 0.8
+    }
+    weekend_discount = 0.7
+    for key, value in weekday_discounts.items():
+        mask = (df['start_time'].dt.time >= key[0]) & (df['start_time'].dt.time < key[1])
+        df.loc[mask & df['start_time'].dt.weekday.isin([0, 1, 2, 3, 4]), ['moto', 'car', 'rv', 'bus', 'truck']] *= value
 
+    mask = df['start_time'].dt.weekday.isin([5, 6])
+    df.loc[mask, ['moto', 'car', 'rv', 'bus', 'truck']] *= weekend_discount
     return df
+print(calculate_time_based_toll_rates(toll_rate))
