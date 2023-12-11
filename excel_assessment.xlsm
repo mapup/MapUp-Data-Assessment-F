@@ -1,0 +1,22 @@
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill
+wb = Workbook()
+ws = wb.active
+ws.title = "Excel Assessment"
+data = [
+    ['Student ID', 'Subject 1', 'Subject 2', 'Subject 3'],
+    [1, 85, 70, 92],
+    [2, 78, 89, 81],
+]
+for row in data:
+    ws.append(row)
+red_fill = PatternFill(start_color="FFCCCC", end_color="FFCCCC", fill_type="solid")
+green_fill = PatternFill(start_color="CCFFCC", end_color="CCFFCC", fill_type="solid")
+for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=2, max_col=4)
+
+
+| Student ID | Subject 1 | Subject 2 | Subject 3 |
+|------------|-----------|-----------|-----------|
+|      1     |     85    |     70    |     92    |
+|      2     |     78    |     89    |     81    |
+|    ...     |    ...    |    ...    |    ...    |
