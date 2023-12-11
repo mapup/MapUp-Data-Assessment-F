@@ -123,9 +123,6 @@ def calculate_toll_rate(df)->pd.DataFrame():
     for key, value in toll_rates.items():
         df[key] = df['distance'].apply(lambda s : s*value)
 
-    # Drop the distance column
-    toll_df = df.drop('distance', axis=1)
-
     return toll_df
 
 
