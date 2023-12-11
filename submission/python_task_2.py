@@ -74,19 +74,19 @@ def find_ids_within_ten_percentage_threshold(df, reference_id)->pd.DataFrame():
                           of the reference ID's average distance.
     """
     # Write your logic here
-df3=pd.read_csv(r'C:\Users\Ritesh Mishra\Desktop\MapUp-Data-Assessment-F-main\datasets\dataset-3.csv')
-ref_avg = df3[df3['id_start'] == ref_value]['distance'].mean()
+    df3=pd.read_csv(r'C:\Users\Ritesh Mishra\Desktop\MapUp-Data-Assessment-F-main\datasets\dataset-3.csv')
+    ref_avg = df3[df3['id_start'] == ref_value]['distance'].mean()
 
-# Calculate the 10% threshold
-threshold = 0.1 * ref_avg
+    # Calculate the 10% threshold
+    threshold = 0.1 * ref_avg
 
-# Find 'id_start' values within the threshold
-ids_within_threshold = df3[(df3['distance'] >= ref_avg - threshold) & (df3['distance'] <= ref_avg + threshold)]['id_start'].unique()
+    # Find 'id_start' values within the threshold
+    ids_within_threshold = df3[(df3['distance'] >= ref_avg - threshold) & (df3['distance'] <= ref_avg + threshold)]['id_start'].unique()
 
-# Sort the list
-ids_within_threshold.sort()
+    # Sort the list
+    ids_within_threshold.sort()
 
-return df
+    return df3
 
 
 def calculate_toll_rate(df)->pd.DataFrame():
