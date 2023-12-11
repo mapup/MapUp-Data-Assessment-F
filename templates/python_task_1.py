@@ -1,4 +1,12 @@
 import pandas as pd
+import numpy as np
+
+"Import files from local"
+
+from google.colab import drive 
+drive.mount('/content/googledrive/', force_remount=True)
+
+df=pd.read_csv('/content/dataset-1.csv')
 
 
 def generate_car_matrix(df)->pd.DataFrame:
@@ -12,9 +20,21 @@ def generate_car_matrix(df)->pd.DataFrame:
         pandas.DataFrame: Matrix generated with 'car' values, 
                           where 'id_1' and 'id_2' are used as indices and columns respectively.
     """
-    # Write your logic here
+    #pivot the DataFrame 
+    pivto = df.pivot(index='id_1', columns='id_2', values='car').fillna(0)
 
-    return df
+     # Fill diagonal values with 0
+    for idx in pivto.index:
+        if idx in pivto.columns:
+            pivto.loc[idx, idx] = 0
+
+
+    return pivto
+
+df = pd.read_csv('dataset-1.csv')
+
+result_matrix = generate_car_matrix(df)
+print(result_matrix)
 
 
 def get_type_count(df)->dict:
@@ -28,8 +48,18 @@ def get_type_count(df)->dict:
         dict: A dictionary with car types as keys and their counts as values.
     """
     # Write your logic here
+    df['car_type'] = 'low'
+    df.loc[df['car'] > 15,'car_type'] ='medium'
+    df.loc[df['car'] > 25,'car_type'] ='high'
 
-    return dict()
+    type_count = df['car_type'].value_counts
+
+
+
+    return type_count()
+
+result = get_type_count(df)
+print(result)
 
 
 def get_bus_indexes(df)->list:
@@ -43,23 +73,41 @@ def get_bus_indexes(df)->list:
         list: List of indexes where 'bus' values exceed twice the mean.
     """
     # Write your logic here
+    #Find mean value
+    mean_value = df['bus'].mean()
+    #index of value
+    bus_indexes = df[df['bus'] > 2 * mean_value].index.tolist()
+    bus_indexes.sort()
+    
+    return bus_indexes
 
-    return list()
+result = get_bus_indexes(df)
+print(result)
 
 
-def filter_routes(df)->list:
+def filter_routes(df):
     """
-    Filters and returns routes with average 'truck' values greater than 7.
+    Returns a sorted list of values in the 'route' column
+    where the average of 'truck' column values is greater than 7.
 
     Args:
-        df (pandas.DataFrame)
+        df (pandas.DataFrame): Input DataFrame containing 'route' and 'truck' columns.
 
     Returns:
-        list: List of route names with average 'truck' values greater than 7.
+        list: Sorted list of values in 'route' column meeting the specified condition.
     """
-    # Write your logic here
+    
+    avg_truck_values = df.groupby('route')['truck'].mean()
+    
+    # filtering average of 'truck' column values is greater than 7
+    filtered_routes = avg_truck_values[avg_truck_values > 7].index.tolist()
+    filtered_routes.sort()
+    
+    return filtered_routes
 
-    return list()
+result = filter_routes(df)
+print(result)
+
 
 
 def multiply_matrix(matrix)->pd.DataFrame:
@@ -73,8 +121,10 @@ def multiply_matrix(matrix)->pd.DataFrame:
         pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
     """
     # Write your logic here
-
-    return matrix
+    df = df.copy()
+    modified = df[col].apply(lambda x: x * 0.75 if x > 20 else x * 1.25)
+    modified = modified.round(1)
+    return modified
 
 
 def time_check(df)->pd.Series:
@@ -88,5 +138,12 @@ def time_check(df)->pd.Series:
         pd.Series: return a boolean series
     """
     # Write your logic here
+    df['start_timestamp']=pd.to_datetime(df['startDay']+'  '+ df['startTime'])
+    df['endtime_timestamp']=pd.to_datetime(df['endDay']+'  '+ df['endTime'])
+    df['duration']=df['start_timestamp'] - df['endtime_timestamp'] 
+    df_group= df.groupby(['id','id2'])
 
-    return pd.Series()
+    min_duration_per_group = df_grouped['duration'].min()
+    max_duration_per_group = df_grouped['duration'].max()
+    return time_check
+    
