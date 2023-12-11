@@ -83,8 +83,8 @@ def time_check(df)->pd.Series:
 
 
 
-dataset1 = pd.read_csv('path_to_your_dataset1.csv')  # Replace 'path_to_your_dataset1.csv' with the actual path
-dataset2 = pd.read_csv('path_to_your_dataset1.csv')  # Replace 'path_to_your_dataset1.csv' with the actual path
+dataset1 = pd.read_csv("..\datasets\dataset-1.csv")  # Replace 'path_to_your_dataset1.csv' with the actual path
+dataset2 = pd.read_csv("..\datasets\dataset-2.csv")  # Replace 'path_to_your_dataset1.csv' with the actual path
 
 # Call each function with the dataset1 as an argument
 # Call each function with the dataset1 as an argument

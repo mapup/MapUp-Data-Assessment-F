@@ -118,7 +118,7 @@ def calculate_time_based_toll_rates(df)->pd.DataFrame():
     return df
 
 
-dataset_path = 'dataset3.csv'
+dataset_path = pd.read_csv("..\datasets\dataset-3.csv")
 
 # Load the dataset
 dataset = pd.read_csv(dataset_path)
