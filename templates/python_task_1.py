@@ -28,8 +28,12 @@ def get_type_count(df)->dict:
         dict: A dictionary with car types as keys and their counts as values.
     """
     # Write your logic here
-
-    return dict()
+    df=pd.read_csv('datasets/dataset-1.csv')
+    df['car_type']=pd.cut(df['car'],bins=[float('-inf'),15,25,float('inf')], labels=['low', 'medium', 'high'], right=False)
+    type_counts= df['car_type'].value_counts().sort_index()
+    return dict(sorted(type_counts.items()))
+result=get_type_count('/Users/HP/Downloads/dataset-1.csv')
+print(result)
 
 
 def get_bus_indexes(df)->list:
