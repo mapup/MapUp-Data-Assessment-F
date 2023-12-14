@@ -36,7 +36,7 @@ def get_type_count(df)->dict:
     df['car_type']=pd.cut(df['car'],bins=[float('-inf'),15,25,float('inf')], labels=['low', 'medium', 'high'], right=False)
     type_counts= df['car_type'].value_counts().sort_index()
     return dict(sorted(type_counts.items()))
-result_count=get_type_count('/Users/HP/Downloads/dataset-1.csv')
+result_count=get_type_count('/datasets/dataset-1.csv')
 print(result_count)
 
 
@@ -57,7 +57,7 @@ def get_bus_indexes(df)->list:
     bus_indexes.sort()
     
     return bus_indexes
-result_indexes=get_bus_indexes('/Users/HP/Downloads/dataset-1.csv')
+result_indexes=get_bus_indexes('/datasets/dataset-1.csv')
 print(result_indexes)
 
 
@@ -79,7 +79,7 @@ def filter_routes(df)->list:
     
 
     return filtered_routes
-result_routes=filter_routes('/Users/HP/Downloads/dataset-1.csv')
+result_routes=filter_routes('datasets/dataset-1.csv')
 print(result_routes)
 
 def multiply_matrix(matrix)->pd.DataFrame:
@@ -93,8 +93,8 @@ def multiply_matrix(matrix)->pd.DataFrame:
         pandas.DataFrame: Modified matrix with values multiplied based on custom conditions.
     """
     # Write your logic here
-    matrix = df.applymap(lambda x: x * 0.75 if x > 20 else x * 1.25)
-    matrix=modified_df.round(1)
+    modified_matrix = df.applymap(lambda x: x * 0.75 if x > 20 else x * 1.25)
+    matrix=modified_matrix.round(1)
     return matrix
 result_matrix=multiply_matrix(result_df)
 print(result_matrix)
