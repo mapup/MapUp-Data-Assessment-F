@@ -101,6 +101,7 @@ def calculate_time_based_toll_rates(df)->pd.DataFrame():
         pandas.DataFrame
     """
     # Write your logic here
+    import time
     df['start_day'] = df['start_time'].dt.day_name()
     df['end_day'] = df['end_time'].dt.day_name()
     df['start_time'] = df['start_time'].dt.time
